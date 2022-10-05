@@ -1,0 +1,4 @@
+
+######## Get url image
+response.css('a.bh-photo-grid-item.bh-photo-grid-side-photo.active-image').attrib['data-thumb-url']
+
