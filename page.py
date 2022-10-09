@@ -59,7 +59,10 @@ def crawl(data, category, name):
     temp = []
     chrome = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     for idx, item in enumerate(data):
-        temp.append(get_content_page(item, idx, category, chrome=chrome))
+    	try:
+            temp.append(get_content_page(item, idx, category, chrome=chrome))
+        except:
+            continue
     export_data_to_json(name, temp)
 
 
