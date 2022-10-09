@@ -19,8 +19,8 @@ logging.basicConfig(filename="./log/std_page.log",
 logger = logging.getLogger()
 # Now we are going to Set the threshold of logger to DEBUG
 logger.setLevel(logging.INFO)
-# Waiting 20s for page load
-DELAY = 2
+# Waiting 2s for page load
+DELAY = 1
 DELAY_POPUP = 1
 
 # Skip string
@@ -133,11 +133,21 @@ def get_content_page(link, idx, idLocation, chrome):
 def get_images(chrome, link):
     global DELAY_POPUP
     try:
-        # find button show all images
-        sleep(DELAY_POPUP)
-        open_pop_images = chrome.find_element(By.CLASS_NAME, 'bh-photo-grid-item.bh-photo-grid-thumb.js-bh-photo-grid-item-see-all')
-        chrome.execute_script("arguments[0].click();", open_pop_images)
-        sleep(DELAY_POPUP)
+        # Find button show all images
+        try:
+            open_pop_images = chrome.find_element(By.CLASS_NAME, 'bh-photo-grid-item.bh-photo-grid-thumb.js-bh-photo-grid-item-see-all')
+            chrome.execute_script("arguments[0].click();", open_pop_images)
+        except:
+            # If not so much images
+            object_images = []
+            html = chrome.page_source
+            soup = BeautifulSoup(html, 'html.parser')
+            images = soup.find('div', class_='clearfix bh-photo-grid fix-score-hover-opacity').find_all('img')
+            for item in images:
+                if item.has_attr('src'):
+                    object_images.append(item['src'])
+            return object_images
+        # If click pop-up all images
         try:
             object_images = []
             html = chrome.page_source
@@ -169,7 +179,7 @@ def load_file_json(file_name):
     return data
 
 def test_image():
-    url = 'https://www.booking.com/hotel/vn/vung-tau-gold-sea-apartment-cookies-homestay-can-ho-bien.vi.html?label=gen173nr-1DCAEoggI46AdIM1gEaPQBiAEBmAEJuAEZyAEM2AED6AEBiAIBqAIDuAKn0ryZBsACAdICJDFjN2ZiNTNlLTkyYzYtNDdjOS05NTg3LTEyMGFmZjZlMjM0NtgCBOACAQ&sid=87b657754f8327f14759b75311b5a649&aid=304142&ucfs=1&arphpl=1&checkin=2022-10-10&checkout=2022-10-11&dest_id=-3733750&dest_type=city&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=4&hapos=4&sr_order=popularity&srpvid=3c928a0463a00295&srepoch=1664048266&all_sr_blocks=905058201_361559050_3_42_0&highlighted_blocks=905058201_361559050_3_42_0&matching_block_id=905058201_361559050_3_42_0&sr_pri_blocks=905058201_361559050_3_42_0__64449000&from_beach_sr=1&beach_sr_walking_distance=923&tpi_r=2&from_sustainable_property_sr=1&from=searchresults#hotelTmpl'
+    url = 'https://www.booking.com/hotel/vn/khanh-uyen-3.vi.html?label=gen173nr-1DCAMo9AE40wNIKlgEaPQBiAEBmAEquAEZyAEM2AED6AEB-AECiAIBqAIDuAKC_7yZBsACAdICJGE5MTMyZTJlLTVjYjEtNGQ2Yy04Y2RhLWZmYTJiZjcyZWIzYtgCBOACAQ&sid=87b657754f8327f14759b75311b5a649&aid=304142&ucfs=1&arphpl=1&checkin=2022-10-10&checkout=2022-10-11&dest_id=-3712045&dest_type=city&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=1&hapos=1&sr_order=popularity&srpvid=55708a04d70d027f&srepoch=1664048266&all_sr_blocks=723067407_361009421_2_0_0&highlighted_blocks=723067407_361009421_2_0_0&matching_block_id=723067407_361009421_2_0_0&sr_pri_blocks=723067407_361009421_2_0_0__27000000&tpi_r=2&from_sustainable_property_sr=1&from=searchresults#hotelTmpl'
     chrome = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     chrome.get(url)
     images = get_images(chrome, link=url)
@@ -182,14 +192,15 @@ def test_file_json():
     print(b)
 
 def test_get_page():
-    link = 'https://www.booking.com/hotel/vn/delen-house-thanh-pho-da-lat4.vi.html?aid=304142&label=gen173nr-1DCAMo9AE40wNIKlgEaPQBiAEBmAEquAEZyAEM2AED6AEB-AECiAIBqAIDuAKC_7yZBsACAdICJGE5MTMyZTJlLTVjYjEtNGQ2Yy04Y2RhLWZmYTJiZjcyZWIzYtgCBOACAQ&sid=87b657754f8327f14759b75311b5a649&all_sr_blocks=906463701_361730965_2_0_0;checkin=2022-10-10;checkout=2022-10-11;dest_id=-3712045;dest_type=city;dist=0;group_adults=2;group_children=0;hapos=8;highlighted_blocks=906463701_361730965_2_0_0;hpos=8;matching_block_id=906463701_361730965_2_0_0;no_rooms=1;req_adults=2;req_children=0;room1=A%2CA;sb_price_type=total;sr_order=popularity;sr_pri_blocks=906463701_361730965_2_0_0__25000000;srepoch=1664048266;srpvid=55708a04d70d027f;type=total;ucfs=1&#hotelTmpl'
+    link = 'https://www.booking.com/hotel/vn/the-song-vung-tau59.vi.html?aid=304142&label=gen173nr-1DCAEoggI46AdIM1gEaPQBiAEBmAEJuAEZyAEM2AED6AEBiAIBqAIDuAKn0ryZBsACAdICJDFjN2ZiNTNlLTkyYzYtNDdjOS05NTg3LTEyMGFmZjZlMjM0NtgCBOACAQ&sid=87b657754f8327f14759b75311b5a649&all_sr_blocks=906448901_361730101_2_0_0;checkin=2022-10-10;checkout=2022-10-11;dest_id=-3733750;dest_type=city;dist=0;group_adults=2;group_children=0;hapos=18;highlighted_blocks=906448901_361730101_2_0_0;hpos=18;matching_block_id=906448901_361730101_2_0_0;no_rooms=1;req_adults=2;req_children=0;room1=A%2CA;sb_price_type=total;sr_order=popularity;sr_pri_blocks=906448901_361730101_2_0_0__74800000;srepoch=1664048266;srpvid=3c928a0463a00295;type=total;ucfs=1&#hotelTmpl'
+    link2 = 'https://www.booking.com/hotel/vn/ly-huong-homestay.vi.html?aid=304142&label=gen173nr-1DCAEoggI46AdIM1gEaPQBiAEBmAEJuAEZyAEM2AED6AEBiAIBqAIDuAKn0ryZBsACAdICJDFjN2ZiNTNlLTkyYzYtNDdjOS05NTg3LTEyMGFmZjZlMjM0NtgCBOACAQ&sid=87b657754f8327f14759b75311b5a649&all_sr_blocks=904953901_361467756_2_0_0;checkin=2022-10-10;checkout=2022-10-11;dest_id=-3733750;dest_type=city;dist=0;group_adults=2;group_children=0;hapos=95;highlighted_blocks=904953901_361467756_2_0_0;hpos=20;matching_block_id=904953901_361467756_2_0_0;no_rooms=1;req_adults=2;req_children=0;room1=A%2CA;sb_price_type=total;sr_order=popularity;sr_pri_blocks=904953901_361467756_2_0_0__63000000;srepoch=1664048284;srpvid=3c928a0463a00295;type=total;ucfs=1&#hotelTmpl'
     idx = 0
     category = 1
     chrome = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     print(get_content_page(link, idx, category, chrome))
 
 if __name__ == '__main__':
-    test_get_page()
-    # test_image()
-    # test_file_json()
-    # start_thread()
+    # test_get_page()
+    test_image()
+    # # test_file_json()
+    #   start_thread()
