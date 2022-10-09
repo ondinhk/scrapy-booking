@@ -2,3 +2,11 @@
 ######## Get url image
 response.css('a.bh-photo-grid-item.bh-photo-grid-side-photo.active-image').attrib['data-thumb-url']
 
+
+ scrapy shell 'https://www.booking.com/hotel/vn/khanh-uyen-3.vi.html?label=gen173nr-1DCAMo9AE40wNIKlgEaPQBiAEBmAEquAEZyAEM2AED6AEB-AECiAIBqAIDuAKC_7yZBsACAdICJGE5MTMyZTJlLTVjYjEtNGQ2Yy04Y2RhLWZmYTJiZjcyZWIzYtgCBOACAQ&sid=87b657754f8327f14759b75311b5a649&aid=304142&ucfs=1&arphpl=1&checkin=2022-10-10&checkout=2022-10-11&dest_id=-3712045&dest_type=city&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=1&hapos=1&sr_order=popularity&srpvid=55708a04d70d027f&srepoch=1664048266&all_sr_blocks=723067407_361009421_2_0_0&highlighted_blocks=723067407_361009421_2_0_0&matching_block_id=723067407_361009421_2_0_0&sr_pri_blocks=723067407_361009421_2_0_0__27000000&tpi_r=2&from_sustainable_property_sr=1&from=searchresults#hotelTmpl'
+ 
+ 
+ 
+ title = response.css('h2.d2fee87262.pp-header__title::text').get()
+ linkBooking = url
+ image=
