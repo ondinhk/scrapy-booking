@@ -201,6 +201,11 @@ def test_get_page():
 
 if __name__ == '__main__':
     # test_get_page()
-    test_image()
-    # # test_file_json()
-    #   start_thread()
+    # test_image()
+    # test_file_json()
+      start_thread()
+#  1_dalat number 825
+#  2_danang number 950
+#  3_nhatrang number 600
+#  4_vungtau number 975
+#  5_phuquoc number 450
