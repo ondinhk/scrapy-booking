@@ -26,6 +26,8 @@ TIME_SLEEP_FROM = 3
 TIME_SLEEP_TO = 7
 AROUND = 1
 
+#
+NUMBER_ERROR = 0
 
 def startThread():
     start_time = perf_counter()
@@ -186,6 +188,7 @@ def print_log_and_sleep(link):
 
 
 def print_logger(link, message, error):
+    NUMBER_ERROR += 1
     logger.error("{} - {} - {}".format(link, message, error))
     print("{} - {} - {}".format(link, message, error))
 
