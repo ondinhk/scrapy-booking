@@ -29,6 +29,7 @@ AROUND = 1
 #
 NUMBER_ERROR = 0
 
+
 def startThread():
     start_time = perf_counter()
     group_1 = load_file_json('group_1.json')
@@ -94,18 +95,22 @@ def get_page(link, location, driver_chrome, data):
         # Get reviews
         try:
             reviews = random_rate()
+            rate = reviews['rate']
+            number_reviews = reviews['number_reviews']
         except Exception as e:
             print_logger(link=link, message="Cannot get reviews", error=e)
         # Locations around
         try:
             query_location_around = soup.find('div', {"id": "content_page_d_short"})
             list_location = query_location_around.find_all('li')
-            location_around = []
-            for item in list_location:
+            locations_distance = []
+            locations_recent = []
+            for item in list_locations:
                 name = item.find('div', class_='des-name').get_text(strip=True)
                 distant = item.find('div', class_='des-distant').get_text(strip=True).replace(' km', '')
                 obj_tmp = {name: float(distant)}
-                location_around.append(obj_tmp)
+                locations_distance.append(obj_tmp)
+                locations_recent.append(name)
         except Exception as e:
             print_logger(link=link, message="Cannot get Locations around", error=e)
         # Get images
@@ -148,10 +153,12 @@ def get_page(link, location, driver_chrome, data):
                'address': address,
                'cost_original': cost_original,
                'cost_sale': cost_sale,
-               'reviews': reviews,
-               'facility': facility,
-               'location_around': location_around,
+               'rate': rate,
+               'number_reviews': number_reviews,
                'description': description,
+               'facility': facility,
+               'locations_recent': locations_recent,
+               'locations_distance': locations_distance,
                'images': images}
         data.append(obj)
     except Exception as e:
