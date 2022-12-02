@@ -13,7 +13,7 @@ import logging
 import random
 
 # now we will Create and configure logger
-logging.basicConfig(filename="./log/get_all_links.log",
+logging.basicConfig(filename="log/get_all_links.log",
                     format='%(asctime)s %(levelname)s %(message)s',
                     filemode='w', )
 # Let us Create an object

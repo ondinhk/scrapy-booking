@@ -1,19 +1,17 @@
-import urllib.request
 import json
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from bs4 import BeautifulSoup
-from threading import Thread
-from time import sleep, perf_counter
 import logging
 import random
+from threading import Thread
+from time import sleep, perf_counter
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import requests
+import json
 
 # now we will Create and configure logger
-logging.basicConfig(filename="./log/get_pages.log",
+logging.basicConfig(filename="log/get_pages.log",
                     format='%(asctime)s %(levelname)s %(message)s',
                     filemode='w', )
 # Let us Create an object
@@ -22,10 +20,10 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 # Set GLOBAL VARIABLE
-TIME_SLEEP_FROM = 3
-TIME_SLEEP_TO = 7
+TIME_SLEEP_FROM = 2
+TIME_SLEEP_TO = 4
 AROUND = 1
-
+TOTAL = []
 #
 NUMBER_ERROR = 0
 
@@ -52,23 +50,38 @@ def startThread():
     thread2.join()
     thread3.join()
     thread4.join()
+    print("Export data")
+    exportDataToJson(name="InfoHotels", data=TOTAL)
+    exportDataToJson(name="GEO", data=TOTAL_GEO)
     end_time = perf_counter()
     print(f'It took {end_time - start_time: 0.2f} second(s) to complete.')
     logger.info("End thread")
 
 
 def run_process(groups, name):
+    global TOTAL
     driver_chrome = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     group_data = []
     for item in groups:
         location = item['location']
         link = item['link']
         get_page(link=link, location=location, driver_chrome=driver_chrome, data=group_data)
-    exportDataToJson(name=name, data=group_data)
+    TOTAL += group_data
     driver_chrome.quit()
 
 
 def get_page(link, location, driver_chrome, data):
+    id_location = {'ha_noi': 0,
+                   'vung_tau': 1,
+                   'da_lat': 2,
+                   'da_nang': 3,
+                   'sapa': 4,
+                   'phu_quoc': 5,
+                   'ha_long': 6,
+                   'quy_nhon': 7,
+                   'nha_trang': 8,
+                   'ho_chi_minh': 9}
+
     driver_chrome.get(link)
     print_log_and_sleep(link)
     html = driver_chrome.page_source
@@ -88,8 +101,10 @@ def get_page(link, location, driver_chrome, data):
             list_description = query_content.find_all('p')
             description = ''
             for item in list_description:
-                description = description + ' ' + item.get_text(strip=True)
-            description.replace('  Điểm nổi bật:  ', '')
+                description = description + item.get_text() + ' '
+            description = description.replace('.đặc ', '. Đặc')
+            description.replace('/-', ' ')
+            # description = description.lower()
         except Exception as e:
             print_logger(link=link, message="Cannot get description", error=e)
         # Get reviews
@@ -102,7 +117,7 @@ def get_page(link, location, driver_chrome, data):
         # Locations around
         try:
             query_location_around = soup.find('div', {"id": "content_page_d_short"})
-            list_location = query_location_around.find_all('li')
+            list_locations = query_location_around.find_all('li')
             locations_distance = []
             locations_recent = []
             for item in list_locations:
@@ -148,9 +163,25 @@ def get_page(link, location, driver_chrome, data):
             except:
                 cost_sale = 'Chưa có khuyến mãi'
                 cost_original = random_cost()
+        try:
+            url = 'https://google-maps-geocoding.p.rapidapi.com/geocode/json'
+            params = {'address': address, 'language': 'vi'}
+            headers = {
+                'X-RapidAPI-Key': 'ddf8ccf95amsh44b86fdc10b47a8p1fe214jsnbc9761949c4f',
+                'X-RapidAPI-Host': 'google-maps-geocoding.p.rapidapi.com'
+            }
+            response = requests.request('GET', url, params=params, headers=headers)
+            data_location = json.loads(response.text)
+            lat = data_location['results'][0]['geometry']['location']['lat']
+            lng = data_location['results'][0]['geometry']['location']['lng']
+            geo_code = {'lat': lat, 'lng': lng}
+        except Exception as e:
+            print_logger(link=link, message="Cannot decode Geo", error=e)
         obj = {'name': name_hotels,
-               'location': location,
+               'idLocation': id_location[location],
+               'idLocationName': location,
                'address': address,
+               'geo_code': geo_code,
                'cost_original': cost_original,
                'cost_sale': cost_sale,
                'rate': rate,
@@ -195,6 +226,7 @@ def print_log_and_sleep(link):
 
 
 def print_logger(link, message, error):
+    global NUMBER_ERROR
     NUMBER_ERROR += 1
     logger.error("{} - {} - {}".format(link, message, error))
     print("{} - {} - {}".format(link, message, error))
