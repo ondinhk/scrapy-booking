@@ -1,4 +1,3 @@
-import json
 import logging
 import random
 from threading import Thread
@@ -52,7 +51,6 @@ def startThread():
     thread4.join()
     print("Export data")
     exportDataToJson(name="InfoHotels", data=TOTAL)
-    exportDataToJson(name="GEO", data=TOTAL_GEO)
     end_time = perf_counter()
     print(f'It took {end_time - start_time: 0.2f} second(s) to complete.')
     logger.info("End thread")

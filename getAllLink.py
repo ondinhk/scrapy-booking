@@ -1,16 +1,13 @@
-import urllib.request
 import json
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from bs4 import BeautifulSoup
-from threading import Thread
-from time import sleep, perf_counter
 import logging
 import random
+from threading import Thread
+from time import sleep, perf_counter
+
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 # now we will Create and configure logger
 logging.basicConfig(filename="log/get_all_links.log",
